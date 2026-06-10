@@ -23,7 +23,6 @@ func fork(path string, sysProcAttr *syscall.SysProcAttr, pretendArgv ...string) 
 	cmd.Args = pretendArgv
 	cmd.Env = append(os.Environ(), "F="+strings.Join(os.Args, " "))
 	cmd.SysProcAttr = sysProcAttr
-
 	err := cmd.Start()
 
 	if cmd.Process != nil {
@@ -122,7 +121,7 @@ func main() {
 		if len(tmp) > 1 {
 			processArgv = append(processArgv, strings.ReplaceAll(strings.Join(tmp, " "), "*", "-"))
 		} else {
-			processArgv = append(processArgv, process)
+			processArgv = append(processArgv, strings.ReplaceAll(process, "*", "-"))
 		}
 
 	}

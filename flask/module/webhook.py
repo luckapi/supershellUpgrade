@@ -21,33 +21,34 @@ def get_target_user(key_file, sessid, rssh_ip, rssh_port):
     '''
         获取目标主机用户名
     '''
-    try:
-        with ssh_client(key_file, sessid, rssh_ip, rssh_port) as ssh_target:
-            try:
-                ssh_target.connect_ssh()
-            except Exception as e:
-                current_app.logger.exception(e)
-                return '-'
-            user = ssh_target.exec_command('whoami')
-            if user['stat'] == 'failed':
-                return '-'
-            elif 'executable file not found in' in user['result'] or user['result'] == '':
-                current_app.logger.info('exec "whoami" to get username failed, now attempt to exec "id".')
-                user_id = ssh_target.exec_command('id')
-                if user_id['stat'] == 'failed':
-                    return '-'
-                elif 'executable file not found in' in user_id['result'] or user_id['result'] == '':
-                    current_app.logger.info('exec "id" to get username failed, return "-".')
-                    return '-'
-                else:
-                    ind_left = user_id['result'].find('(') + 1
-                    ind_right = user_id['result'].find(')')
-                    return user_id['result'][ind_left:ind_right]
-            else:
-                return user['result']
-    except Exception as e:
-        current_app.logger.exception(e)
-        return '-'
+#     try:
+#         with ssh_client(key_file, sessid, rssh_ip, rssh_port) as ssh_target:
+#             try:
+#                 ssh_target.connect_ssh()
+#             except Exception as e:
+#                 current_app.logger.exception(e)
+#                 return '-'
+#             user = ssh_target.exec_command('whoami')
+#             if user['stat'] == 'failed':
+#                 return '-'
+#             elif 'executable file not found in' in user['result'] or user['result'] == '':
+#                 current_app.logger.info('exec "whoami" to get username failed, now attempt to exec "id".')
+#                 user_id = ssh_target.exec_command('id')
+#                 if user_id['stat'] == 'failed':
+#                     return '-'
+#                 elif 'executable file not found in' in user_id['result'] or user_id['result'] == '':
+#                     current_app.logger.info('exec "id" to get username failed, return "-".')
+#                     return '-'
+#                 else:
+#                     ind_left = user_id['result'].find('(') + 1
+#                     ind_right = user_id['result'].find(')')
+#                     return user_id['result'][ind_left:ind_right]
+#             else:
+#                 return user['result']
+#     except Exception as e:
+#         current_app.logger.exception(e)
+#         return '-'
+    return 'root'
 
 
 def get_target_os_arch(version_str):
@@ -63,13 +64,14 @@ def ip2region(ip):
     '''
         查找ip归属地
     '''
-    try:
-        result = requests.get('http://ip-api.com/json/' + ip).text
-        country_code = json.loads(result)['countryCode']
-        return country_code
-    except Exception as e:
-        current_app.logger.exception(e)
-        return '-'
+#     try:
+#         result = requests.get('http://ip-api.com/json/' + ip).text
+#         country_code = json.loads(result)['countryCode']
+#         return country_code
+#     except Exception as e:
+#         current_app.logger.exception(e)
+#         return '-'
+    return 'HK'
 
 
 def handle_client_data(client_data, key_file, rssh_ip, rssh_port):

@@ -27,7 +27,6 @@ func Run(destination, fingerprint, proxyaddress, sni string, _ bool) {
 func Fork(destination, fingerprint, proxyaddress, sni string, _ bool, pretendArgv ...string) error {
 
 	err := fork("/proc/self/exe", nil, pretendArgv...)
-	//err := fork("/bin/bash", nil, pretendArgv...)
 	if err != nil {
 		log.Println("Forking from /proc/self/exe failed: ", err)
 

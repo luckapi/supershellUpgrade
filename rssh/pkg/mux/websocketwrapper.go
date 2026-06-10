@@ -40,6 +40,9 @@ func (ww *websocketWrapper) LocalAddr() net.Addr {
 }
 
 func (ww *websocketWrapper) RemoteAddr() net.Addr {
+	if req := ww.wsConn.Request(); req != nil {
+		return getForwardedIP(req, ww.tcpConn.RemoteAddr())
+	}
 	return ww.tcpConn.RemoteAddr()
 }
 

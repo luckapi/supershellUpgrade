@@ -167,6 +167,33 @@ func (m *Multiplexer) startHttpServer() {
 	}(listener)
 }
 
+// ipOnlyAddr implements net.Addr and returns just the IP without a port suffix,
+// avoiding the ugly ":0" that net.TCPAddr would produce for proxy-forwarded IPs.
+type ipOnlyAddr struct {
+	IP net.IP
+}
+
+func (a ipOnlyAddr) Network() string { return "tcp" }
+func (a ipOnlyAddr) String() string  { return a.IP.String() }
+
+// getForwardedIP extracts the original client IP from reverse proxy/CDN headers.
+// Returns the leftmost IP from X-Forwarded-For, or X-Real-IP, falling back to
+// the direct TCP connection's remote address.
+func getForwardedIP(req *http.Request, fallback net.Addr) net.Addr {
+	if xff := req.Header.Get("X-Forwarded-For"); xff != "" {
+		ipStr := strings.TrimSpace(strings.Split(xff, ",")[0])
+		if ip := net.ParseIP(ipStr); ip != nil {
+			return ipOnlyAddr{IP: ip}
+		}
+	}
+	if xri := req.Header.Get("X-Real-IP"); xri != "" {
+		if ip := net.ParseIP(strings.TrimSpace(xri)); ip != nil {
+			return ipOnlyAddr{IP: ip}
+		}
+	}
+	return fallback
+}
+
 func (m *Multiplexer) collector(localAddr net.Addr) http.HandlerFunc {
 
 	var (
@@ -215,7 +242,7 @@ func (m *Multiplexer) collector(localAddr net.Addr) http.HandlerFunc {
 					return
 				}
 
-				c, id, err = NewFragmentCollector(localAddr, realConn.RemoteAddr(), func() {
+				c, id, err = NewFragmentCollector(localAddr, getForwardedIP(req, realConn.RemoteAddr()), func() {
 					delete(connections, id)
 				})
 				if err != nil {
@@ -511,12 +538,14 @@ func (m *Multiplexer) unwrapTransports(conn net.Conn) (net.Conn, protocols.Type,
 					tls.CurveP256,
 					tls.X25519, // Go 1.8 only
 				},
-				MinVersion: tls.VersionTLS12,
+				MinVersion: tls.VersionTLS11,
+				MaxVersion: tls.VersionTLS13,
 			}
 
 			if m.config.TLSCertPath != "" {
 				cert, err := tls.LoadX509KeyPair(m.config.TLSCertPath, m.config.TLSKeyPath)
 				if err != nil {
+					fmt.Println(err.Error())
 					return nil, protocols.Invalid, fmt.Errorf("TLS is enabled but loading certs/key failed: %s, err: %s", m.config.TLSCertPath, err)
 				}
 
@@ -524,6 +553,7 @@ func (m *Multiplexer) unwrapTransports(conn net.Conn) (net.Conn, protocols.Type,
 			} else {
 				cert, err := genX509KeyPair(m.config.AutoTLSCommonName)
 				if err != nil {
+					fmt.Println(err.Error())
 					return nil, protocols.Invalid, fmt.Errorf("TLS is enabled but generating certs/key failed: %s", err)
 				}
 				tlsConfig.Certificates = append(tlsConfig.Certificates, cert)

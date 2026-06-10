@@ -384,7 +384,8 @@ func getIP(ip string) net.IP {
 		}
 	}
 
-	return nil
+	// No port separator found, parse as bare IP (e.g. from proxy-forwarded headers)
+	return net.ParseIP(ip)
 }
 
 func acceptConn(c net.Conn, config *ssh.ServerConfig, timeout int, dataDir string) {
