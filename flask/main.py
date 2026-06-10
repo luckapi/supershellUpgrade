@@ -2,18 +2,19 @@
     flask入口
 '''
 
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, Response
 # from const import key_file, rssh_ip, rssh_port
 # from category.rssh import rssh_client
 from views import login, client, webhook, session_info, session_shell, session_files, \
     no_session, server_files, setting, compiled, session_memfd, session_advanced, notes, \
     monitor, log
 from const import log_path
-from config import user, global_salt
+from config import user, pwd, global_salt
 from module.func import no_proxy
 import jwt
 import logging
 import time
+import hashlib
 
 # with rssh_client(key_file, rssh_ip, rssh_port) as rssh_target:
 #     try:
@@ -59,6 +60,22 @@ app.register_blueprint(session_advanced.session_advanced_view)
 app.register_blueprint(notes.notes_view)
 app.register_blueprint(monitor.monitor_view)
 app.register_blueprint(log.log_view)
+
+
+@app.route('/', methods=['GET'])
+def root_basic_auth():
+    '''
+        / 路径 Basic Auth 鉴权，通过后跳转登录页
+    '''
+    auth = request.authorization
+    if auth and auth.username == user and \
+            hashlib.md5(auth.password.encode('utf-8')).hexdigest() == pwd:
+        return redirect('/supershell/login')
+    return Response(
+        'Authentication required',
+        401,
+        {'WWW-Authenticate': 'Basic realm=""'}
+    )
 
 
 # 所有请求前的权限认证（除去no_proxy中定义的接口）

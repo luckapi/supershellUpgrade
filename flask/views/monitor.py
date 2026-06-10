@@ -12,7 +12,6 @@ from module.monitor import getRsshStatus, getClientsNum, getCompileNumSize, getP
 
 monitor_view = Blueprint('monitor', __name__)
 
-@monitor_view.route('/', methods=['GET'])
 @monitor_view.route('/supershell/monitor', methods=['GET'])
 def monitor_page():
     '''

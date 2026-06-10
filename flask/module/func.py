@@ -68,7 +68,8 @@ def no_proxy(path):
                        '/supershell/share/shell/login',
                        '/supershell/share/shell/login/auth',
                        '/supershell/session/nginx/void',
-                       '/supershell/memfd/inject/auth'
+                       '/supershell/memfd/inject/auth',
+                       '/'  # Basic Auth 鉴权
                        ]
     back = path.split('.')[-1]
     if back.lower() in white_list or path in white_path_list \

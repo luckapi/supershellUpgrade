@@ -16,8 +16,8 @@ errorlog = log_path + '/gunicorn.log'
 # accesslog = log_path + '/gunicorn.log'
 # access_log_format = '%(t)s %(p)s %(h)s "%(r)s" %(s)s %(L)s %(b)s %(f)s" "%(a)s"'
 
-# 超时时间
-timeout = 0
+# 超时时间（秒），0=永不超时，会导致卡住的worker永久占用连接
+timeout = 300
 
 # 启动的进程数
 workers = multiprocessing.cpu_count() * 2 + 1
