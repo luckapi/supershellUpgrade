@@ -7,7 +7,7 @@
 rssh_ip = 'rssh'
 
 # rssh服务器的端口
-rssh_port = 3232
+rssh_port = 443
 
 # redis的ip
 redis_ip = 'redis'
