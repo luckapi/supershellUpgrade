@@ -84,7 +84,7 @@ services:
       - |
         chmod +x ttyd
         chmod 600 /root/.ssh/id_rsa
-        ./ttyd -i 0.0.0.0 -p 7681 -a -t titleFixed='Supershell - Shell' -t disableLeaveAlert=true ssh -J rssh:3232
+        ./ttyd -i 0.0.0.0 -p 7681 -a -t titleFixed='Supershell - Shell' -t disableLeaveAlert=true ssh -J rssh:443
     restart: always
   memfd:
     container_name: memfd
@@ -105,5 +105,5 @@ services:
       - |
         chmod +x ttyd
         chmod 600 /root/.ssh/id_rsa
-        ./ttyd -i 0.0.0.0 -p 7682 -a -t titleFixed='Supershell - Inject' -t disableLeaveAlert=true -t disableReconnect=true ssh -J rssh:3232
+        ./ttyd -i 0.0.0.0 -p 7682 -a -t titleFixed='Supershell - Inject' -t disableLeaveAlert=true -t disableReconnect=true ssh -J rssh:443
     restart: always
